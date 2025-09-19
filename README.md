@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WorldFeeds
 
-## Getting Started
+**WorldFeeds** est un projet développé en **Next.js** pour agréger et afficher des articles de plusieurs flux RSS internationaux.
 
-First, run the development server:
+## Technologies utilisées
+
+- **Next.js** : framework React pour le rendu côté serveur et le front-end.
+- **PostgreSQL** : base de données pour stocker les articles et les informations associées.
+- **Redis** : cache pour accélérer la récupération des flux RSS et réduire les appels réseau.
+- **Node-cron** : planification de tâches pour scraper les flux RSS automatiquement à intervalle régulier.
+- **rss-parser, node-fetch, cheerio** : parsing et récupération des contenus des flux RSS.
+- **Prisma ORM** : interaction avec PostgreSQL.
+
+## Fonctionnalités principales
+
+1. **Scraping RSS** :
+   - Récupération automatique des flux RSS définis dans `FEEDS`.
+   - Support pour `media:content`, `media:thumbnail` et récupération d'images Open Graph.
+
+2. **Insertion automatique dans PostgreSQL** :
+   - Chaque article est enregistré dans la base avec un identifiant unique.
+   - Vérification pour éviter les doublons.
+
+3. **Cache Redis** :
+   - Mise en cache des articles pour accélérer les requêtes côté client.
+
+4. **Pagination et filtres** :
+   - Recherche par mot-clé et par source.
+   - Filtrage par catégories.
+   - Pagination optimisée avec affichage des pages et séparateurs.
+
+5. **Interface utilisateur** :
+   - Liste d'articles avec titre, image, résumé et catégories.
+   - Catégories affichées en badges, possibilité d’afficher tous les badges au clic.
+
+6. **Tâches cron** :
+   - Planification des scrapes toutes les heures.
+
+## Utilisation
+
+### Installation
+
+```bash
+git clone <repo-url>
+cd worldfeeds
+npm install
+```
+
+### Configuration
+
+- Copier `.env.example` en `.env` et remplir les variables :
+  - `DATABASE_URL` pour PostgreSQL
+  - `REDIS_URL` pour Redis
+
+### Lancer le projet
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Cron pour scraping RSS
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Les flux RSS sont scrappés automatiquement toutes les heures via `node-cron`. Le code principal se trouve dans `cron/cronFeeds.ts`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Exemple d'utilisation du scraping
 
-## Learn More
+```ts
+import { scrapeFeeds } from '@/lib/scrapeFeeds';
+const articles = await scrapeFeeds('keyword', 'CNN World');
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Structure du projet
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+/worldfeeds
+├─ /cron
+│  └─ cronFeeds.ts      # Tâches cron pour scraping RSS
+├─ /lib
+│  ├─ scrapeFeeds.ts    # Fonction pour récupérer et parser les flux RSS
+│  └─ redis.ts          # Connexion et gestion du cache Redis
+├─ /components
+│  └─ ArticleList.tsx   # Composant pour afficher les articles
+├─ /pages
+│  └─ index.tsx         # Page principale
+├─ prisma
+│  └─ schema.prisma     # Modèle de la base de données
+└─ README.md
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Licence
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

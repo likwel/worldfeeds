@@ -1,0 +1,10 @@
+{
+    "crons": [
+        {
+            "path": "/api/ingest",
+            "schedule": "0 */2 * * *",
+            "headers": { "x-ingest-token": "${INGEST_TOKEN}" },
+            "method": "POST"
+        }
+    ]
+}
