@@ -12,32 +12,43 @@ export default async function HomePage({
   const q = searchParams?.q || "";
   const source = searchParams?.source || "all";
   const page = parseInt(searchParams?.page ?? "1", 10);
+  const categories = searchParams?.category?.split(",") ?? [];
 
   // 🔹 Générer le filtre Prisma
   const whereClause: any = {};
+
   if (q) {
     whereClause.OR = [
       { title: { contains: q, mode: "insensitive" } },
       { summary: { contains: q, mode: "insensitive" } },
     ];
   }
+
   if (source && source !== "all") {
     whereClause.source = source;
+  }
+
+  if (categories.length > 0) {
+    whereClause.categories = {
+      some: {
+        in: categories,
+      },
+    };
   }
 
   // 🔹 Récupération totale pour la pagination
   const total = await prisma.article.count({ where: whereClause });
 
-    const categories = await prisma.article.findMany({ 
-      select: {
-        categories: true, // on récupère seulement les catégories
-      },
+  const cats = await prisma.article.findMany({ 
+    select: {
+      categories: true, // on récupère seulement les catégories
+    },
   });
 
   // 🔹 Extraction de toutes les catégories uniques
   const allCategories = Array.from(
     new Set(
-      categories
+      cats
         .map(a => a.categories?.split(",") ?? []) // convertir "Politique,Monde" en tableau
         .flat() // aplatir tous les tableaux
         .map(cat => cat.trim()) // nettoyer les espaces
@@ -53,7 +64,7 @@ export default async function HomePage({
     take: PAGE_LIMIT,
   });
 
-  console.log(allCategories)
+  // console.log(allCategories)
 
   return (
     <ArticlesList

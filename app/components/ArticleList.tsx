@@ -3,6 +3,9 @@ import { useState } from "react";
 import { Home, Image, FileText, Info, Code, Menu, X, Video, Settings, Bell, User } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { nanoid } from "nanoid";
+// import { SidebarContentFilter} from "./CategoryFilter";
+import SidebarServer from "./SidebarServer";
+import { prisma } from "@/lib/db"; // ton client Prisma
 
 export default function ArticlesList({ items, total, q, source, page }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -35,6 +38,7 @@ export default function ArticlesList({ items, total, q, source, page }: any) {
       {/* Sidebar Desktop */}
       <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col">
         <SidebarContent links={links} />
+        <SidebarServer />
       </aside>
 
       <main className="flex-1 flex flex-col overflow-auto">
