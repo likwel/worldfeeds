@@ -51,12 +51,22 @@ npm install
 - Copier `.env.example` en `.env` et remplir les variables :
   - `DATABASE_URL` pour PostgreSQL
   - `REDIS_URL` pour Redis
+### Installer la base de données
+
+```bash
+npx prisma generate
+npx prisma migrate dev --name add_table_user
+```
 
 ### Lancer le projet
 
 ```bash
 npm run dev
 ```
+```bash
+npx ts-node cron/cronFeeds.ts
+```
+
 
 ### Cron pour scraping RSS
 

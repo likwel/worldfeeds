@@ -11,6 +11,7 @@
     "cron": "ts-node cron/cronFeeds.ts"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.16.2",
     "cheerio": "^1.1.2",
     "lucide-react": "^0.544.0",
@@ -21,6 +22,8 @@
     "react-dom": "19.1.0",
     "redis": "^5.8.2",
     "rss-parser": "^3.13.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^4.1.9"
   },
   "devDependencies": {

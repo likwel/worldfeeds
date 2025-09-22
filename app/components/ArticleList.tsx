@@ -3,9 +3,11 @@ import { useState } from "react";
 import { Home, Image, FileText, Info, Code, Menu, X, Video, Settings, Bell, User } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { nanoid } from "nanoid";
-// import { SidebarContentFilter} from "./CategoryFilter";
-import SidebarServer from "./SidebarServer";
+import SidebarContent from "./SidebarMenu";
+import SidebarClient from "./SidebarClient";
 import { prisma } from "@/lib/db"; // ton client Prisma
+import { links } from "@/lib/links";
+
 
 export default function ArticlesList({ items, total, q, source, page }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,22 +25,13 @@ export default function ArticlesList({ items, total, q, source, page }: any) {
     { key: "DW World", label: "DW World" }
   ];
 
-  const links = [
-    { href: "/", label: "Accueil", icon: <Home size={20} /> },
-    { href: "/videos", label: "Videos", icon: <Video size={20} /> },
-    { href: "/images", label: "Images", icon: <Image size={20} /> },
-    { href: "/articles", label: "Articles", icon: <FileText size={20} /> },
-    { href: "/api", label: "API", icon: <Code size={20} /> },
-    { href: "/setting", label: "Paramètre", icon: <Settings size={20} /> },
-    { href: "/about", label: "À propos", icon: <Info size={20} /> },
-  ];
 
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar Desktop */}
       <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col">
         <SidebarContent links={links} />
-        <SidebarServer />
+        
       </aside>
 
       <main className="flex-1 flex flex-col overflow-auto">
@@ -68,6 +61,12 @@ export default function ArticlesList({ items, total, q, source, page }: any) {
                 placeholder="Rechercher…"
                 className="flex-1 rounded-xl bg-gray-50 px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-indigo-600 sm:text-sm/6"
               />
+
+              {/* Dropdown catégories */}
+              <div className="w-60">
+                <SidebarClient />
+              </div>
+              
               <button className="rounded-xl bg-light-600 outline-1 outline-gray-300 text-gray px-3 py-2 hover:bg-gray-300 hover:border hover:text-white cursor-pointer">
                 🔍
               </button>
@@ -291,31 +290,3 @@ export default function ArticlesList({ items, total, q, source, page }: any) {
   );
 }
 
-function SidebarContent({ links, closeSidebar }: { links: any[]; closeSidebar?: () => void }) {
-  // const pathname = typeof window !== "undefined" ? window.location.pathname : "";
-  const pathname = usePathname();
-  return (
-    <>
-      <h2 className="p-4 text-2xl font-bold">🌐 {process.env.NEXT_PUBLIC_SITE_NAME ?? "WorldFeeds"}</h2>
-      <nav className="px-4 flex flex-col gap-2 bg-white">
-        {links.map((l) => {
-          const isActive = pathname === l.href;
-          return (
-            <a
-              key={l.href}
-              href={l.href}
-              onClick={closeSidebar}
-              className={`flex items-center gap-3 px-3 py-2 rounded font-medium transition ${
-                isActive
-                  ? "bg-blue-600 text-white"
-                  : "hover:bg-gray-100 text-gray-900"
-              }`}
-            >
-              {l.icon} {l.label}
-            </a>
-          );
-        })}
-      </nav>
-    </>
-  );
-}

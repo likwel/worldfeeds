@@ -16,22 +16,89 @@ datasource db {
 
 model Article {
   id          String    @id @default(cuid())
-  uniqueId    String    @unique // hash de link+pubDate pour éviter doublons
+  uniqueId    String    @unique
   source      String
   title       String
   link        String
-  summary     String?   // description du flux RSS
-  creator     String?   // dc:creator
-  categories  String?   // stocké en CSV
-  enclosureUrl String?  // item.enclosure?.url
-  enclosureType String? // item.enclosure?.type
-  enclosureLength String? // item.enclosure?.length
-  thumbnail   String?   // media:thumbnail
-  imageUrl    String?   // ogImage ou image fallback
+  summary     String?
+  creator     String?
+  categories  String?
+  enclosureUrl String?
+  enclosureType String?
+  enclosureLength String?
+  thumbnail   String?
+  imageUrl    String?
   publishedAt DateTime
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  // ✅ Nouvelles colonnes
+  viewCount   Int       @default(0) // compteur global de vues
+
+  favorites   Favorite[]
+  reviews     Review[]
+  likes       Like[]    // 🔹 relation inverse
+
   @@index([publishedAt])
   @@index([source, publishedAt])
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String?
+  apiKeys   ApiKey[]
+  favorites Favorite[]
+  reviews   Review[]
+  likes     Like[]    // 🔹 relation inverse
+  createdAt DateTime  @default(now())
+}
+
+model ApiKey {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  name      String?
+  hashedKey String   @unique
+  last4     String?
+  revoked   Boolean  @default(false)
+  createdAt DateTime  @default(now())
+  lastUsedAt DateTime?
+  expiresAt DateTime?
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  article   Article  @relation(fields: [articleId], references: [id])
+  articleId String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, articleId])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  article   Article  @relation(fields: [articleId], references: [id])
+  articleId String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, articleId])
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  article   Article  @relation(fields: [articleId], references: [id])
+  articleId String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, articleId]) // un seul like par user/article
 }

@@ -28,12 +28,11 @@ export default async function HomePage({
     whereClause.source = source;
   }
 
+  
   if (categories.length > 0) {
-    whereClause.categories = {
-      some: {
-        in: categories,
-      },
-    };
+    whereClause.AND = categories.map(cat => ({
+      categories: { contains: cat, mode: "insensitive" }
+    }));
   }
 
   // 🔹 Récupération totale pour la pagination
