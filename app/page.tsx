@@ -61,6 +61,19 @@ export default async function HomePage({
     orderBy: { publishedAt: "desc" },
     skip: (page - 1) * PAGE_LIMIT,
     take: PAGE_LIMIT,
+    include: {
+        _count: {
+          select: {
+            likes: true,     // compte le nombre de likes
+            reviews: true,   // compte le nombre de reviews
+          },
+        },
+        reviews: {
+          select: {
+            rating: true,    // pour calculer la moyenne
+          },
+        },
+      },
   });
 
   // console.log(allCategories)

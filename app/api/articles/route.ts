@@ -6,8 +6,8 @@ import { verifyApiKeyFromRequest } from "@/lib/verifyApiKey";
 const PAGE_LIMIT = 12;
 
 export async function GET(req: Request) {
-  const apiKey = await verifyApiKeyFromRequest(req);
-  if (!apiKey) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // const apiKey = await verifyApiKeyFromRequest(req);
+  // if (!apiKey) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") ?? "";
@@ -35,12 +35,25 @@ export async function GET(req: Request) {
     orderBy: { publishedAt: "desc" },
     skip: (page - 1) * PAGE_LIMIT,
     take: PAGE_LIMIT,
+    include: {
+        _count: {
+          select: {
+            likes: true,     // compte le nombre de likes
+            reviews: true,   // compte le nombre de reviews
+          },
+        },
+        reviews: {
+          select: {
+            rating: true,    // pour calculer la moyenne
+          },
+        },
+      },
   });
 
   return NextResponse.json({
     success: true,
-    apiKeyId: apiKey.id,
-    userId: apiKey.userId,
+    // apiKeyId: apiKey.id,
+    // userId: apiKey.userId,
     total,
     page,
     limit: PAGE_LIMIT,
